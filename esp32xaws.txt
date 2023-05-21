@@ -1,0 +1,65 @@
+#include <WiFi.h>
+#include "DHT.h"
+#include <AWS_IOT.h>
+
+#define DHT_PIN 4
+#define DHT_TYPE 22
+
+const char* ssid = "syh"; //Write your SSID
+const char* password = "1234567890";   //Write your password
+
+#define CLIENT_ID "ESP32"
+#define MQTT_TOPIC "$aws/things/ESP32/shadow/name/esp32"
+#define AWS_HOST "a2kzuluq7omx1u-ats.iot.ap-southeast-1.amazonaws.com"
+
+DHT dht(DHT_PIN,DHT_TYPE);
+AWS_IOT aws;
+
+void setup(){
+  Serial.begin(9600);
+  Serial.print("Initializing....");
+  
+  WiFi.mode(WIFI_STA);
+  WiFi.begin(ssid,password);
+   Serial.print("Connecting to WiFi...");
+  while(WiFi.status()!= WL_CONNECTED){
+    Serial.print(".");
+    delay(300);
+  }
+  dht.begin();
+  Serial.print("Starting connection with AWS");
+  if(aws.connect(AWS_HOST,CLIENT_ID)==0){
+    Serial.print("Connected to AWS!");
+  }
+  else{
+    Serial.print("Connection Failed! Check AWS HOST and Client ID");
+  }
+}
+
+void loop(){
+  float hum = dht.readHumidity();
+  float temp = dht.readTemperature();  
+  
+   if (isnan(hum) || isnan(temp)  ){
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;}
+    else{
+      String temp_humidity = "Temperature: ";
+      temp_humidity += String(temp);
+      temp_humidity += "°C Humidity: ";
+      temp_humidity += String(hum);
+      temp_humidity += "%";
+      char payload[40];
+      temp_humidity.toCharArray(payload,40);
+      Serial.println("Publishing...");
+      Serial.println(payload);
+
+      if(aws.publish(MQTT_TOPIC,payload)==0){
+        Serial.println("Success");
+      }
+      else{
+Serial.println("Failed");
+      }
+    }
+    delay(1000);
+   }
