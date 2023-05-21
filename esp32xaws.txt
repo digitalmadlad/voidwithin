@@ -5,12 +5,12 @@
 #define DHT_PIN 4
 #define DHT_TYPE 22
 
-const char* ssid = "syh"; //Write your SSID
-const char* password = "1234567890";   //Write your password
+const char* ssid = "";
+const char* password = "";
 
-#define CLIENT_ID "ESP32"
-#define MQTT_TOPIC "$aws/things/ESP32/shadow/name/esp32"
-#define AWS_HOST "a2kzuluq7omx1u-ats.iot.ap-southeast-1.amazonaws.com"
+#define CLIENT_ID ""
+#define MQTT_TOPIC ""
+#define AWS_HOST ""
 
 DHT dht(DHT_PIN,DHT_TYPE);
 AWS_IOT aws;
